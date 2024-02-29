@@ -1,0 +1,72 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                 Prosperity MT5   |
+//|                                  Developer's site: forexroboteasy.com |
+//|                                     Developed by: Forex Robot Easy Team |
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input double TakeProfit = 100;
+input double StopLoss = 50;
+input int LotSize = 0.01;
+
+// Define global variables
+int ticket;
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Check if there is an open position
+   if(!IsTradeContextBusy())
+   {
+      // Check if there are no open positions
+      if(PositionSelect(Symbol()))
+      {
+         // Generate a buy trade
+         ticket = OrderSend(Symbol(), OP_BUY, LotSize, Ask, 3, Bid-StopLoss*Point, Bid+TakeProfit*Point, 'Buy trade', 0, 0, Green);
+         
+         if(ticket > 0)
+         {
+            // Trade executed successfully
+            Print('Buy trade executed with ticket ', ticket);
+         }
+         else
+         {
+            // Trade execution failed
+            Print('Buy trade failed with error ', GetLastError());
+         }
+      }
+      else
+      {
+         // Generate a sell trade
+         ticket = OrderSend(Symbol(), OP_SELL, LotSize, Bid, 3, Ask+StopLoss*Point, Ask-TakeProfit*Point, 'Sell trade', 0, 0, Red);
+         
+         if(ticket > 0)
+         {
+            // Trade executed successfully
+            Print('Sell trade executed with ticket ', ticket);
+         }
+         else
+         {
+            // Trade execution failed
+            Print('Sell trade failed with error ', GetLastError());
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//|                                                                  |
+//|                                                                  |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Close any open positions upon deinitialization
+   if(PositionSelect(Symbol()))
+   {
+      PositionClose(Symbol());
+   }
+}
